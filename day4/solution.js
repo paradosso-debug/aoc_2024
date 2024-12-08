@@ -72,83 +72,44 @@ async function part1() {
 
 // part1();
 
-// Async function to read the grid from file and count occurrences
 async function part2() {
-  // Read contents from input.txt
+  // Your provided utility function to get the file content
   const contents = utils.openFile("./input.txt", false);
+
+  // Convert the input into a grid
   const grid = contents.split("\n").map((line) => line.trim());
 
-  // Dimensions of the grid
-  const numRows = grid.length;
-  const numCols = grid[0].length;
+  const rows = grid.length;
+  const cols = grid[0].length;
+  let count = 0;
 
-  // Define the primary target pattern
-  const targetPattern = [
-    ["M", ".", "S"],
-    [".", "A", "."],
-    ["M", ".", "S"],
-  ];
+  // Helper function to check X-MAS patterns
+  const isXMasPattern = (r, c) => {
+    // Forward slash pattern
+    const forwardSlash =
+      grid[r]?.[c] === "M" &&
+      grid[r + 1]?.[c + 1] === "A" &&
+      grid[r + 2]?.[c + 2] === "S";
 
-  const patternRows = targetPattern.length;
-  const patternCols = targetPattern[0].length;
+    // Backslash pattern
+    const backSlash =
+      grid[r]?.[c] === "M" &&
+      grid[r + 1]?.[c - 1] === "A" &&
+      grid[r + 2]?.[c - 2] === "S";
 
-  // Directions to search: [rowOffset, colOffset]
-  const directions = [
-    [1, 0], // Vertical down
-    [0, 1], // Horizontal right
-    [1, 1], // Diagonal down-right
-    [1, -1], // Diagonal down-left
-    [-1, 0], // Vertical up
-    [0, -1], // Horizontal left
-    [-1, -1], // Diagonal up-left
-    [-1, 1], // Diagonal up-right
-  ];
+    return forwardSlash || backSlash;
+  };
 
-  function countXMASPatterns(grid, targetPattern) {
-    let count = 0;
-
-    // Function to check if the pattern exists starting from (row, col) in a specific direction
-    function searchFromPosition(row, col, direction) {
-      const [rowOffset, colOffset] = direction;
-      for (let i = 0; i < patternRows; i++) {
-        for (let j = 0; j < patternCols; j++) {
-          let newRow = row + i * rowOffset;
-          let newCol = col + j * colOffset;
-
-          // Check bounds
-          if (
-            newRow < 0 ||
-            newRow >= numRows ||
-            newCol < 0 ||
-            newCol >= numCols ||
-            (targetPattern[i][j] !== "." &&
-              grid[newRow][newCol] !== targetPattern[i][j])
-          ) {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    // Iterate through each cell in the grid
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        // Check all directions from the current position
-        for (let direction of directions) {
-          if (searchFromPosition(row, col, direction)) {
-            count++;
-          }
-        }
+  // Iterate through every cell in the grid
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (isXMasPattern(r, c)) {
+        count++;
       }
     }
-
-    return count;
   }
 
-  const totalOccurrences = countXMASPatterns(grid, targetPattern);
-  console.log(`Total occurrences of X-MAS pattern:`, totalOccurrences);
+  console.log("Number of X-MAS patterns:", count);
 }
 
-// Execute part2 function
 part2();
