@@ -5,9 +5,10 @@ class Utils {
     this.fs = fs;
   }
 
-  openFile(path) {
+  openFile(path, byLines = true) {
     const contents = this.fs.readFileSync(path, "utf8");
-    return contents;
+    if (!byLines) return contents;
+    return this.splitLines(contents);
   }
 
   splitLines(contents) {

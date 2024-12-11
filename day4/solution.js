@@ -72,44 +72,61 @@ async function part1() {
 
 // part1();
 
-async function part2() {
-  // Your provided utility function to get the file content
-  const contents = utils.openFile("./input.txt", false);
-
-  // Convert the input into a grid
-  const grid = contents.split("\n").map((line) => line.trim());
-
-  const rows = grid.length;
-  const cols = grid[0].length;
+function part2() {
+  // Read the input file
+  const lines = utils.openFile("./input.txt");
   let count = 0;
 
-  // Helper function to check X-MAS patterns
-  const isXMasPattern = (r, c) => {
-    // Forward slash pattern
-    const forwardSlash =
-      grid[r]?.[c] === "M" &&
-      grid[r + 1]?.[c + 1] === "A" &&
-      grid[r + 2]?.[c + 2] === "S";
+  function searchXMAS(lines, lineIndex, index, lineStep, indexStep) {
+    let i = 0;
+    let pass = false;
+    let ind1 = lineIndex - lineStep;
+    while (
+      i < 2 &&
+      lineIndex - lineStep >= 0 &&
+      index - indexStep >= 0 &&
+      lineIndex - lineStep < lines.length &&
+      index - indexStep < lines[0].length
+    ) {
+      let line = lines[lineIndex - lineStep];
+      let char = line[index - indexStep];
+      pass = (i == 0 && char == "M") || (i == 1 && char == "S");
+      if (!pass) return false;
+      lineStep *= -1;
+      indexStep *= -1;
+      i++;
+    }
+    return i == 2 ? pass : false;
+  }
 
-    // Backslash pattern
-    const backSlash =
-      grid[r]?.[c] === "M" &&
-      grid[r + 1]?.[c - 1] === "A" &&
-      grid[r + 2]?.[c - 2] === "S";
+  const steps = [
+    [1, -1],
+    [-1, 1],
+  ];
 
-    return forwardSlash || backSlash;
-  };
+  const steps2 = [
+    [1, 1],
+    [-1, -1],
+  ];
 
-  // Iterate through every cell in the grid
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (isXMasPattern(r, c)) {
-        count++;
-      }
+  for (let l = 0; l < lines.length; l++) {
+    for (let c = 0; c < lines[0].length; c++) {
+      if (lines[l][c] != "A") continue;
+
+      let valid =
+        steps.reduce(
+          (p, v) => p || searchXMAS(lines, l, c, v[0], v[1]),
+          false
+        ) &&
+        steps2.reduce(
+          (p, v) => p || searchXMAS(lines, l, c, v[0], v[1]),
+          false
+        );
+      if (valid) count++;
     }
   }
 
-  console.log("Number of X-MAS patterns:", count);
+  console.log("count =", count);
 }
 
 part2();
